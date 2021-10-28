@@ -6,7 +6,7 @@ module.exports = (options, webpack) => {
 
   return {
     ...options,
-    externals: [],
+    externals: ['fastify-swagger', 'class-transformer/storage'],
     output: {
       ...options.output,
       libraryTarget: 'commonjs2',
