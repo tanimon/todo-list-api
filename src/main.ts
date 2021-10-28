@@ -5,6 +5,13 @@ import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
 
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule);
+  setupSwagger(app);
+  app.listen(3000);
+}
+bootstrap();
+
 let cachedServer: Handler;
 
 function setupSwagger(app: INestApplication): void {
