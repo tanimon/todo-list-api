@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: RDS template
+
+Parameters:
+  PrivateSubnet1Id:
+    Type: String
+  PrivateSubnet2Id:
+    Type: String
+  RdsMasterUserSecretArn:
+    Type: String
+  RdsDatabaseName:
+    Type: String
+  DBClusterSecurityGroupId:
+    Type: String
+  RdsProxySecurityGroupId:
+    Type: String
+  RdsMasterUsername:
+    Type: String
+
+Resources:
+  DBClusterSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: for DB Cluster
+      SubnetIds:
+        - !Ref PrivateSubnet1Id
+        - !Ref PrivateSubnet2Id
+
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      MasterUsername: !Sub '{{resolve:secretsmanager:${RdsMasterUserSecretArn}:SecretString:username}}'
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${RdsMasterUserSecretArn}:SecretString:password}}'
+      Engine: aurora-mysql
+      EngineVersion: 5.7.mysql_aurora.2.10.1
+      DatabaseName: !Ref RdsDatabaseName
+      DBSubnetGroupName: !Ref DBClusterSubnetGroup
+      VpcSecurityGroupIds:
+        - !Ref DBClusterSecurityGroupId
+
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    DependsOn: DBCluster
+    Properties:
+      DBClusterIdentifier: !Ref DBCluster
+      DBSubnetGroupName: !Ref DBClusterSubnetGroup
+      Engine: aurora-mysql
+      DBInstanceClass: db.t3.small
+
+  DBClusterAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    DependsOn: DBCluster
+    Properties:
+      SecretId: !Ref RdsMasterUserSecretArn
+      TargetId: !Ref DBCluster
+      TargetType: AWS::RDS::DBCluster
+
+  RdsProxy:
+    Type: AWS::RDS::DBProxy
+    Properties:
+      DBProxyName: todo-rds-proxy-for-db-cluster
+      EngineFamily: MYSQL
+      RequireTLS: true
+      RoleArn: !GetAtt RdsProxyRole.Arn
+      Auth:
+        - AuthScheme: SECRETS
+          SecretArn: !Ref RdsMasterUserSecretArn
+          IAMAuth: REQUIRED
+      VpcSecurityGroupIds:
+        - !Ref RdsProxySecurityGroupId
+      VpcSubnetIds:
+        - !Ref PrivateSubnet1Id
+        - !Ref PrivateSubnet2Id
+
+  RdsProxyTargetGroup:
+    Type: AWS::RDS::DBProxyTargetGroup
+    DependsOn:
+      - DBCluster
+      - DBInstance
+    Properties:
+      DBProxyName: !Ref RdsProxy
+      DBClusterIdentifiers:
+        - !Ref DBCluster
+      TargetGroupName: default
+
+  RdsProxyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowGetSecretValue
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:DescribeSecret
+                Resource:
+                  - !Ref DBClusterAttachment
+                  - !Ref RdsMasterUserSecretArn
+
+Outputs:
+  RdsProxyEndpoint:
+    Value: !GetAtt RdsProxy.Endpoint
+  RdsProxyArn:
+    Value: !GetAtt RdsProxy.DBProxyArn
