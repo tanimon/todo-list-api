@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TodosModule } from './todos/todos.module';
+import { Todo } from './todos/entities/todo.entity';
 import AWS from 'aws-sdk';
 
 const signer = new AWS.RDS.Signer();
@@ -19,6 +21,7 @@ const signerOptions = {
       host: process.env.DB_HOST,
       username: process.env.DB_USERNAME,
       database: process.env.DB_NAME,
+      entities: [Todo],
       synchronize: true,
       ssl: 'Amazon RDS',
       extra: {
@@ -27,6 +30,7 @@ const signerOptions = {
         },
       },
     }),
+    TodosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
