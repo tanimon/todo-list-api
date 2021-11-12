@@ -45,23 +45,38 @@ export class TodosService {
     return todo;
   }
 
-  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<Todo> {
+  async update(
+    id: number,
+    updateTodoDto: UpdateTodoDto,
+  ): Promise<Todo | undefined> {
+    const todo = await this.todosRepository.findOne(id);
+    if (!todo) {
+      return undefined;
+    }
+
     this.logger.debug(
-      `Updating a todo(id: ${id}) from the DTO: ${JSON.stringify(
+      `Updating a todo${JSON.stringify(todo)} from the DTO: ${JSON.stringify(
         updateTodoDto,
       )}`,
     );
-    const result = await this.todosRepository.update(id, updateTodoDto);
-    this.logger.debug(`Update result: ${JSON.stringify(result)}`);
-    const updatedTodo = await this.todosRepository.findOne(id);
+    todo.title = updateTodoDto.title ?? todo.title;
+    todo.description = updateTodoDto.description ?? todo.description;
+    todo.completed = updateTodoDto.completed ?? todo.completed;
+    const updatedTodo = await this.todosRepository.save(todo);
     this.logger.debug(`Updated a todo: ${JSON.stringify(updatedTodo)}`);
 
     return updatedTodo;
   }
 
-  async remove(id: number): Promise<void> {
-    this.logger.debug(`Removing a todo(id: ${id})`);
-    await this.todosRepository.delete(id);
-    this.logger.debug(`Removed a todo(id: ${id})`);
+  async remove(id: number): Promise<Todo | undefined> {
+    const todo = await this.todosRepository.findOne(id);
+    if (!todo) {
+      return undefined;
+    }
+
+    this.logger.debug(`Removing a todo: ${JSON.stringify(todo)}`);
+    const removedTodo = await this.todosRepository.remove(todo);
+    this.logger.debug(`Removed a todo: ${JSON.stringify(removedTodo)}`);
+    return removedTodo;
   }
 }
