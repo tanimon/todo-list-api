@@ -86,7 +86,7 @@ export class TodosController {
     @Body() updateTodoDto: UpdateTodoDto,
   ): Promise<Todo> {
     await this.findAndAuthenticate(id, request);
-    return this.todosService.update(id, updateTodoDto);
+    return await this.todosService.update(id, updateTodoDto);
   }
 
   @Delete(':id')
@@ -97,9 +97,12 @@ export class TodosController {
     description: 'Todo アイテムへのアクセス権限がありません。',
   })
   @ApiNotFoundResponse({ description: 'Todo アイテムが存在しません。' })
-  async remove(@Param('id') id: number, @Req() request: Request) {
+  async remove(
+    @Param('id') id: number,
+    @Req() request: Request,
+  ): Promise<void> {
     await this.findAndAuthenticate(id, request);
-    return this.todosService.remove(id);
+    await this.todosService.remove(id);
   }
 
   private getUserId(request: Request) {
