@@ -100,9 +100,6 @@ Resources:
             - Effect: Allow
               Action: rds-db:connect
               Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsStack.Outputs.RdsProxyArn}/${RdsMasterUsername}
-            - Effect: Allow
-              Action: secretsmanager:GetSecretValue
-              Resource: !GetAtt SecretsStack.Outputs.RdsMasterUserSecretArn
       Events:
         ProxyApiRoot:
           Type: Api
