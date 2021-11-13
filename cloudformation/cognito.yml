@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Cognito template
+
+Resources:
+  # The Cognito User Pool resource
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      MfaConfiguration: 'OFF'
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+
+  # The Cognito User Pool Client resource
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+Outputs:
+  CognitoUserPoolArn:
+    Value: !GetAtt CognitoUserPool.Arn
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Value: !Ref CognitoUserPoolClient

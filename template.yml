@@ -45,31 +45,7 @@ Resources:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !GetAtt CognitoUserPool.Arn
-
-  # The Cognito User Pool resource
-  CognitoUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      MfaConfiguration: 'OFF'
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-          RequireLowercase: true
-          RequireUppercase: true
-          RequireNumbers: true
-          RequireSymbols: true
-
-  # The Cognito User Pool Client resource
-  CognitoUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref CognitoUserPool
-      GenerateSecret: false
-      ExplicitAuthFlows:
-        - ALLOW_ADMIN_USER_PASSWORD_AUTH
-        - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH
+            UserPoolArn: !GetAtt CognitoStack.Outputs.CognitoUserPoolArn
 
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -120,6 +96,11 @@ Resources:
           DB_USERNAME: !Ref RdsMasterUsername
           DB_NAME: !Ref RdsDatabaseName
 
+  CognitoStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: cloudformation/cognito.yml
+
   VpcStack:
     Type: AWS::Serverless::Application
     Properties:
@@ -151,9 +132,9 @@ Resources:
 
 Outputs:
   CognitoUserPoolId:
-    Value: !Ref CognitoUserPool
+    Value: !GetAtt CognitoStack.Outputs.CognitoUserPoolId
   CognitoUserPoolClientId:
-    Value: !Ref CognitoUserPoolClient
+    Value: !GetAtt CognitoStack.Outputs.CognitoUserPoolClientId
   ToDoListApi:
     Description: 'API Gateway endpoint URL for Prod stage for ToDo list function'
     Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
