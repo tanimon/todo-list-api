@@ -1,73 +1,123 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# todo-list-api
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+ToDo リストアプリのための REST API サーバです。
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 必要条件
 
-## Description
+このアプリケーションを実行するには以下の条件を満たしている必要があります。
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Node.js](https://nodejs.org/ja/) がインストールされている
+- [Yarn](https://yarnpkg.com/) がインストールされている
+- [MySQL](https://www.mysql.com/jp/) がインストールされている（ローカル環境での実行に必要）
+- [AWS SAM CLI](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) がインストール（デプロイに必要）
+- [AWS CLI](https://aws.amazon.com/jp/cli/) がインストールされている（Cognito ユーザの作成に必要）
 
-## Installation
+## インストール
+
+以下のコマンドを実行してください。
 
 ```bash
-$ npm install
+yarn
 ```
 
-## Running the app
+## アプリケーションをローカル環境で実行する
 
-```bash
+このアプリケーションは DB の接続に環境変数を参照します。
+`.env` というファイル名で以下の変数の値を設定したファイルを作成してください。
+アプリケーション内部で `.env` ファイルを自動で読み込み、環境変数として利用します。
+
+```sh
+DB_HOST=<DB host>
+DB_USERNAME=<DB username>
+rB_PASSWORD=<Password for the $DB_USERNAME user>
+DB_NAME=<DB name to connect>
+```
+
+アプリケーションを起動するには以下のコマンドを実行してください。
+http://localhost:3000 からアプリケーションにアクセスできます。
+
+```sh
 # development
-$ npm run start
+yarn start
 
 # watch mode
-$ npm run start:dev
+yarn start:dev
 
 # production mode
-$ npm run start:prod
+yarn start:prod
 ```
 
-## Test
+## API 仕様
+
+[./docs/redoc-static.html](./docs/redoc-static.html) で API 仕様を確認することができます。
+
+また、`yarn start` を実行してアプリケーションを起動後、 http://localhost:3000/api にアクセスすることで、 [Swagger UI](https://swagger.io/tools/swagger-ui/) で API 仕様を確認することもできます。
+
+## テスト
+
+テストを実行するには以下のコマンドを実行してください。
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+yarn test
 ```
 
-## Support
+## デプロイ
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+以下のコマンドを実行してください。
 
-## Stay in touch
+```sh
+# build the application
+yarn build
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# build the AWS SAM templates
+sam build
 
-## License
+# deploy the application to AWS
+sam deploy --guided
+```
 
-Nest is [MIT licensed](LICENSE).
+## Cognito ユーザの ID トークンの取得
+
+デプロイしたアプリケーションを実行するには、Cognito でユーザ認証を行う必要があります。
+そのために、Cognito ユーザを作成し、そのユーザの ID トークンを取得する必要があるので、その手順を解説します。
+
+以下の Shell 変数が設定されている前提で説明します。
+
+```sh
+USER_POOL_ID=<Cognito user pool ID>
+CLIENT_ID=<Cognito user pool client ID>
+USERNAME=<Cognito username>
+PASSWORD=<Password for $USERNAME>
+```
+
+`USER_POOL_ID` および `CLIENT_ID` に設定すべき値は `sam deploy` コマンドの実行結果で確認できます。
+
+まずは、以下のコマンドで、ユーザをクライアントプールに登録します。
+
+```sh
+aws cognito-idp sign-up \
+  --client-id ${CLIENT_ID} \
+  --username ${USERNAME} \
+  --PASSWORD ${PASSWORD}
+```
+
+次に、以下のコマンドで、作成したユーザの確認を行います。
+
+```sh
+aws cognito-idp admin-confirm-sign-up \
+  --user-pool-id ${USER_POOL_ID} \
+  --username ${USERNAME}
+```
+
+最後に、以下のコマンドで ID トークンを取得します。
+
+```sh
+aws cognito-idp admin-initiate-auth \
+  --user-pool-id ${USER_POOL_ID} \
+  --client-id ${CLIENT_ID} \
+  --auth-flow "ADMIN_USER_PASSWORD_AUTH" \
+  --auth-parameters USERNAME=${USERNAME},PASSWORD=${PASSWORD} \
+  --query "AuthenticationResult.IdToken" | sed s/\"//g
+```
+
+取得した ID トークンを HTTP リクエストの `Authorization` ヘッダに設定することで、ユーザ認証が行えます。
