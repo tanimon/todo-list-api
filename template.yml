@@ -41,11 +41,11 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      # Auth:
-      #   DefaultAuthorizer: CognitoAuthorizer
-      #   Authorizers:
-      #     CognitoAuthorizer:
-      #       UserPoolArn: !GetAtt CognitoUserPool.Arn
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
 
   # The Cognito User Pool resource
   CognitoUserPool:
