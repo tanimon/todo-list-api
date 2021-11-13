@@ -49,7 +49,8 @@ yarn start:prod
 
 ## API 仕様
 
-[./docs/redoc-static.html](./docs/redoc-static.html) で API 仕様を確認することができます。
+[./docs/redoc-static.html](./docs/redoc-static.html) をブラウザで開くことで API 仕様を確認することができます。
+[./docs/swagger.json](./docs/swagger.json) に OpenAPI 準拠の JSON ファイルを配置しているので、OpenAPI のビュワー等で API 仕様を確認することもできます。
 
 また、`yarn start` を実行してアプリケーションを起動後、 http://localhost:3000/api にアクセスすることで、 [Swagger UI](https://swagger.io/tools/swagger-ui/) で API 仕様を確認することもできます。
 
