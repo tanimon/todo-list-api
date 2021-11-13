@@ -150,6 +150,10 @@ Resources:
         RdsMasterUsername: !Ref RdsMasterUsername
 
 Outputs:
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+  CognitoUserPoolClientId:
+    Value: !Ref CognitoUserPoolClient
   ToDoListApi:
     Description: 'API Gateway endpoint URL for Prod stage for ToDo list function'
     Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
