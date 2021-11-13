@@ -153,13 +153,5 @@ Outputs:
   ToDoListApi:
     Description: 'API Gateway endpoint URL for Prod stage for ToDo list function'
     Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
-  ToDoListFunction:
-    Description: 'ToDo list Lambda Function ARN'
-    Value: !GetAtt ToDoListFunction.Arn
-  ToDoListFunctionIamRole:
-    Description: 'Implicit IAM Role created for ToDo list function'
-    Value: !GetAtt ToDoListFunctionRole.Arn
-  RdsProxyEndpoint:
-    Value: !GetAtt RdsStack.Outputs.RdsProxyEndpoint
   GetSecretValueByCli:
     Value: !GetAtt SecretsStack.Outputs.GetSecretValueByCli
