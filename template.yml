@@ -41,35 +41,11 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      # Auth:
-      #   DefaultAuthorizer: CognitoAuthorizer
-      #   Authorizers:
-      #     CognitoAuthorizer:
-      #       UserPoolArn: !GetAtt CognitoUserPool.Arn
-
-  # The Cognito User Pool resource
-  CognitoUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      MfaConfiguration: 'OFF'
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-          RequireLowercase: true
-          RequireUppercase: true
-          RequireNumbers: true
-          RequireSymbols: true
-
-  # The Cognito User Pool Client resource
-  CognitoUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref CognitoUserPool
-      GenerateSecret: false
-      ExplicitAuthFlows:
-        - ALLOW_ADMIN_USER_PASSWORD_AUTH
-        - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoStack.Outputs.CognitoUserPoolArn
 
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -100,9 +76,6 @@ Resources:
             - Effect: Allow
               Action: rds-db:connect
               Resource: !Sub arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsStack.Outputs.RdsProxyArn}/${RdsMasterUsername}
-            - Effect: Allow
-              Action: secretsmanager:GetSecretValue
-              Resource: !GetAtt SecretsStack.Outputs.RdsMasterUserSecretArn
       Events:
         ProxyApiRoot:
           Type: Api
@@ -118,9 +91,15 @@ Resources:
             Method: ANY
       Environment:
         Variables:
+          NODE_ENV: production
           DB_HOST: !GetAtt RdsStack.Outputs.RdsProxyEndpoint
           DB_USERNAME: !Ref RdsMasterUsername
           DB_NAME: !Ref RdsDatabaseName
+
+  CognitoStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: cloudformation/cognito.yml
 
   VpcStack:
     Type: AWS::Serverless::Application
@@ -152,16 +131,12 @@ Resources:
         RdsMasterUsername: !Ref RdsMasterUsername
 
 Outputs:
+  CognitoUserPoolId:
+    Value: !GetAtt CognitoStack.Outputs.CognitoUserPoolId
+  CognitoUserPoolClientId:
+    Value: !GetAtt CognitoStack.Outputs.CognitoUserPoolClientId
   ToDoListApi:
     Description: 'API Gateway endpoint URL for Prod stage for ToDo list function'
     Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
-  ToDoListFunction:
-    Description: 'ToDo list Lambda Function ARN'
-    Value: !GetAtt ToDoListFunction.Arn
-  ToDoListFunctionIamRole:
-    Description: 'Implicit IAM Role created for ToDo list function'
-    Value: !GetAtt ToDoListFunctionRole.Arn
-  RdsProxyEndpoint:
-    Value: !GetAtt RdsStack.Outputs.RdsProxyEndpoint
   GetSecretValueByCli:
     Value: !GetAtt SecretsStack.Outputs.GetSecretValueByCli

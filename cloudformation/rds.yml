@@ -26,6 +26,19 @@ Resources:
         - !Ref PrivateSubnet1Id
         - !Ref PrivateSubnet2Id
 
+  DBClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Family: aurora-mysql5.7
+      Description: DB Cluster Parameter Group
+      Parameters:
+        character_set_client: utf8mb4
+        character_set_connection: utf8mb4
+        character_set_database: utf8mb4
+        character_set_results: utf8mb4
+        character_set_server: utf8mb4
+        collation_connection: utf8mb4_general_ci
+
   DBCluster:
     Type: AWS::RDS::DBCluster
     Properties:
@@ -37,6 +50,7 @@ Resources:
       DBSubnetGroupName: !Ref DBClusterSubnetGroup
       VpcSecurityGroupIds:
         - !Ref DBClusterSecurityGroupId
+      DBClusterParameterGroupName: !Ref DBClusterParameterGroup
 
   DBInstance:
     Type: AWS::RDS::DBInstance
