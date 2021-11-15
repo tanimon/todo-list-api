@@ -99,7 +99,7 @@ AWS コンソールから以下の手順を実行してください。
 USER_POOL_ID=<Cognito user pool ID>
 CLIENT_ID=<Cognito user pool client ID>
 USERNAME=<Cognito username>
-PASSWORD=<Password for $USERNAME>
+PASSWORD=<Password for the $USERNAME user>
 ```
 
 `USER_POOL_ID` および `CLIENT_ID` に設定すべき値は `sam deploy` コマンドの実行結果で確認できます。
@@ -110,7 +110,7 @@ PASSWORD=<Password for $USERNAME>
 aws cognito-idp sign-up \
   --client-id ${CLIENT_ID} \
   --username ${USERNAME} \
-  --PASSWORD ${PASSWORD}
+  --password ${PASSWORD}
 ```
 
 次に、以下のコマンドで、作成したユーザの確認を行います。
