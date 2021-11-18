@@ -29,7 +29,7 @@ yarn
 ```sh
 DB_HOST=<DB host>
 DB_USERNAME=<DB username>
-rB_PASSWORD=<Password for the $DB_USERNAME user>
+DB_PASSWORD=<Password for the $DB_USERNAME user>
 DB_NAME=<DB name to connect>
 ```
 
